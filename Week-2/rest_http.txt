@@ -1,0 +1,20 @@
+REST stands for Representational State Transfer.
+
+REST is a way to design APIs so that different systems can communicate over the internet using standard HTTP rules.
+REST uses HTTP methods
+HTTP methods used in REST
+
+------Features of REST APIs-------
+Stateless: Each request contains all required information; the server does not store client session state.
+Client–Server: Client and server are independent, improving scalability and separation of concerns.
+Cacheable: Responses can be marked cacheable to enhance performance.
+Layered System: Can operate across multiple layers to support scalability and security.
+
+GET → read data
+POST → create data
+PUT/PATCH → update data
+DELETE → remove data
+
+
+
+
