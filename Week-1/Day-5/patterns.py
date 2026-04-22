@@ -1,4 +1,5 @@
 #Factory patterns--The Factory Pattern in Python is a design pattern where you create objects using a separate function or class instead of creating them directly.
+#but lets subclasses decide which object to create.
 
 # Without Factory
 class Dog:

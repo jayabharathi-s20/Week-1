@@ -26,7 +26,7 @@ def read_inventory(file_path):
                     price=float(row["price"]),
                     category=row["category"],
                     supplier=row["supplier"],
-                    expiry_date=datetime.strptime(row["expiry_date"], "%Y-%m-%d").date()#strptime = "String Parse Time" --It converts a string into a datetime object
+                    expiry_date=datetime.strptime(row["expiry_date"], "%Y-%m-%d").date() #strptime = "String Parse Time" --It converts a string into a datetime object
                 )
 
                 items.append(item)
@@ -45,7 +45,7 @@ def low_stock_report(items):
         if item.quantity <= item.threshold:
             print(f"{item.name} | Qty: {item.quantity} | Min: {item.threshold} | Price: {item.price} | Category: {item.category}")
 
-if __name__ == "__main__":
+if __name__ == "__main__":   #It is used to control what runs automatically
     """
     Entry point of the program.
 
