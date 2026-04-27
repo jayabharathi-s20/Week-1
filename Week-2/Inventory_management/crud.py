@@ -2,23 +2,32 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from datetime import date, timedelta
 from models import User, Category, Item
+from sqlalchemy.exc import IntegrityError
+
 
 def create_user(db: Session, data: dict):
     """
     Create a new user.
 
     Args:
-        db: Database session
-        data: Dictionary containing user details (name, email)
+        db (Session): Database session
+        data (dict): User data (name, email)
 
     Returns:
-        Created user object
+        User: Created user object
+
+    Raises:
+        ValueError: If email already exists
     """
-    user = User(**data)
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-    return user
+    try:
+        user = User(**data)
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+        return user
+    except IntegrityError:
+        db.rollback()
+        raise ValueError("Email already exists")
 
 
 def get_users(db: Session):
@@ -26,87 +35,121 @@ def get_users(db: Session):
     Retrieve all users.
 
     Args:
-        db: Database session
+        db (Session): Database session
 
     Returns:
-        List of users
+        List[User]: List of users
     """
     return db.query(User).all()
 
 
 def get_user(db: Session, user_id: int):
     """
-    Get a single user by ID.
+    Retrieve a user by ID.
 
     Args:
-        db: Database session
-        user_id: ID of the user
+        db (Session): Database session
+        user_id (int): User ID
 
     Returns:
-        User object or None
+        User | None: User object or None if not found
     """
     return db.query(User).filter(User.id == user_id).first()
 
 
 def update_user(db: Session, user_id: int, data: dict):
     """
-    Update all fields of a user.
+    Fully update a user.
 
     Args:
-        db: Database session
-        user_id: User ID
-        data: Updated data
+        db (Session): Database session
+        user_id (int): User ID
+        data (dict): Updated user data
 
     Returns:
-        Updated user or None
+        User | None: Updated user or None if not found
+
+    Raises:
+        ValueError: If email already exists
     """
     user = get_user(db, user_id)
     if not user:
         return None
 
-    for key, value in data.items():
-        setattr(user, key, value)
+    try:
+        if "email" in data:
+            existing = db.query(User).filter(
+                User.email == data["email"],
+                User.id != user_id
+            ).first()
 
-    db.commit()
-    db.refresh(user)
-    return user
+            if existing:
+                raise ValueError("Email already exists")
+
+        for key, value in data.items():
+            setattr(user, key, value)
+
+        db.commit()
+        db.refresh(user)
+        return user
+
+    except IntegrityError:
+        db.rollback()
+        raise ValueError("Email already exists")
 
 
 def patch_user(db: Session, user_id: int, data: dict):
     """
-    Partially update user fields.
+    Partially update a user.
 
     Args:
-        db: Database session
-        user_id: User ID
-        data: Partial fields to update
+        db (Session): Database session
+        user_id (int): User ID
+        data (dict): Partial update data
 
     Returns:
-        Updated user or None
+        User | None: Updated user or None
+
+    Raises:
+        ValueError: If email already exists
     """
     user = get_user(db, user_id)
     if not user:
         return None
 
-    for key, value in data.items():
-        if value is not None:
-            setattr(user, key, value)
+    try:
+        if "email" in data:
+            existing = db.query(User).filter(
+                User.email == data["email"],
+                User.id != user_id
+            ).first()
 
-    db.commit()
-    db.refresh(user)
-    return user
+            if existing:
+                raise ValueError("Email already exists")
+
+        for key, value in data.items():
+            if value is not None:
+                setattr(user, key, value)
+
+        db.commit()
+        db.refresh(user)
+        return user
+
+    except IntegrityError:
+        db.rollback()
+        raise ValueError("Email already exists")
 
 
 def delete_user(db: Session, user_id: int):
     """
-    Delete a user by ID.
+    Delete a user.
 
     Args:
-        db: Database session
-        user_id: User ID
+        db (Session): Database session
+        user_id (int): User ID
 
     Returns:
-        Success message or None
+        dict | None: Success message or None if user not found
     """
     user = get_user(db, user_id)
     if not user:
@@ -116,17 +159,30 @@ def delete_user(db: Session, user_id: int):
     db.commit()
     return {"message": "User deleted"}
 
+
+
 def create_category(db: Session, data: dict):
     """
     Create a new category.
 
     Args:
-        db: Database session
-        data: Category data (name, created_by)
+        db (Session): Database session
+        data (dict): Category data
 
     Returns:
-        Created category
+        Category: Created category
+
+    Raises:
+        ValueError: If category already exists for user
     """
+    existing = db.query(Category).filter(
+        Category.name == data["name"],
+        Category.created_by == data["created_by"]
+    ).first()
+
+    if existing:
+        raise ValueError("Category already exists for this user")
+
     category = Category(**data)
     db.add(category)
     db.commit()
@@ -136,20 +192,23 @@ def create_category(db: Session, data: dict):
 
 def get_categories(db: Session):
     """
-    Get all categories.
+    Retrieve all categories.
+
+    Args:
+        db (Session): Database session
 
     Returns:
-        List of categories
+        List[Category]
     """
     return db.query(Category).all()
 
 
 def get_category(db: Session, category_id: int):
     """
-    Get category by ID.
+    Retrieve category by ID.
 
     Returns:
-        Category or None
+        Category | None
     """
     return db.query(Category).filter(Category.id == category_id).first()
 
@@ -159,11 +218,24 @@ def update_category(db: Session, category_id: int, data: dict):
     Fully update a category.
 
     Returns:
-        Updated category or None
+        Category | None
+
+    Raises:
+        ValueError: If duplicate category exists
     """
     category = get_category(db, category_id)
     if not category:
         return None
+
+    if "name" in data:
+        existing = db.query(Category).filter(
+            Category.name == data["name"],
+            Category.created_by == data["created_by"],
+            Category.id != category_id
+        ).first()
+
+        if existing:
+            raise ValueError("Category already exists for this user")
 
     for key, value in data.items():
         setattr(category, key, value)
@@ -178,11 +250,21 @@ def patch_category(db: Session, category_id: int, data: dict):
     Partially update a category.
 
     Returns:
-        Updated category or None
+        Category | None
     """
     category = get_category(db, category_id)
     if not category:
         return None
+
+    if "name" in data:
+        existing = db.query(Category).filter(
+            Category.name == data["name"],
+            Category.created_by == category.created_by,
+            Category.id != category_id
+        ).first()
+
+        if existing:
+            raise ValueError("Category already exists for this user")
 
     for key, value in data.items():
         if value is not None:
@@ -198,7 +280,7 @@ def delete_category(db: Session, category_id: int):
     Delete a category.
 
     Returns:
-        Success message or None
+        dict | None
     """
     category = get_category(db, category_id)
     if not category:
@@ -211,15 +293,13 @@ def delete_category(db: Session, category_id: int):
 
 def get_categories_by_user(db: Session, user_id: int):
     """
-    Get all categories created by a user.
-
-    Args:
-        user_id: User ID
+    Get categories created by a user.
 
     Returns:
-        List of categories
+        List[Category]
     """
     return db.query(Category).filter(Category.created_by == user_id).all()
+
 
 
 def create_item(db: Session, data: dict):
@@ -227,32 +307,36 @@ def create_item(db: Session, data: dict):
     Create a new item.
 
     Returns:
-        Created item
+        Item
+
+    Raises:
+        ValueError: If invalid category/user
     """
-    item = Item(**data)
-    db.add(item)
-    db.commit()
-    db.refresh(item)
-    return item
+    try:
+        if not db.query(Category).filter(Category.id == data["category_id"]).first():
+            raise ValueError("Invalid category_id")
+
+        if not db.query(User).filter(User.id == data["created_by"]).first():
+            raise ValueError("Invalid created_by (user not found)")
+
+        item = Item(**data)
+        db.add(item)
+        db.commit()
+        db.refresh(item)
+        return item
+
+    except IntegrityError:
+        db.rollback()
+        raise ValueError("Error creating item")
 
 
 def get_items(db: Session):
-    """
-    Get all items.
-
-    Returns:
-        List of items
-    """
+    """Return all items."""
     return db.query(Item).all()
 
 
 def get_item(db: Session, item_id: int):
-    """
-    Get item by ID.
-
-    Returns:
-        Item or None
-    """
+    """Return item by ID."""
     return db.query(Item).filter(Item.id == item_id).first()
 
 
@@ -261,18 +345,31 @@ def update_item(db: Session, item_id: int, data: dict):
     Fully update an item.
 
     Returns:
-        Updated item or None
+        Item | None
     """
     item = get_item(db, item_id)
     if not item:
         return None
 
-    for key, value in data.items():
-        setattr(item, key, value)
+    try:
+        if "category_id" in data:
+            if not db.query(Category).filter(Category.id == data["category_id"]).first():
+                raise ValueError("Invalid category_id")
 
-    db.commit()
-    db.refresh(item)
-    return item
+        if "created_by" in data:
+            if not db.query(User).filter(User.id == data["created_by"]).first():
+                raise ValueError("Invalid created_by")
+
+        for key, value in data.items():
+            setattr(item, key, value)
+
+        db.commit()
+        db.refresh(item)
+        return item
+
+    except IntegrityError:
+        db.rollback()
+        raise ValueError("Error updating item")
 
 
 def patch_item(db: Session, item_id: int, data: dict):
@@ -280,19 +377,24 @@ def patch_item(db: Session, item_id: int, data: dict):
     Partially update an item.
 
     Returns:
-        Updated item or None
+        Item | None
     """
     item = get_item(db, item_id)
     if not item:
         return None
 
-    for key, value in data.items():
-        if value is not None:
-            setattr(item, key, value)
+    try:
+        for key, value in data.items():
+            if value is not None:
+                setattr(item, key, value)
 
-    db.commit()
-    db.refresh(item)
-    return item
+        db.commit()
+        db.refresh(item)
+        return item
+
+    except IntegrityError:
+        db.rollback()
+        raise ValueError("Error updating item")
 
 
 def delete_item(db: Session, item_id: int):
@@ -300,7 +402,7 @@ def delete_item(db: Session, item_id: int):
     Delete an item.
 
     Returns:
-        Success message or None
+        dict | None
     """
     item = get_item(db, item_id)
     if not item:
@@ -309,72 +411,3 @@ def delete_item(db: Session, item_id: int):
     db.delete(item)
     db.commit()
     return {"message": "Item deleted"}
-
-
-def get_user_items(db: Session, user_id: int):
-    """
-    Get all items created by a user.
-
-    Returns:
-        List of items
-    """
-    return db.query(Item).filter(Item.created_by == user_id).all()
-
-
-def get_items_by_category(db: Session, category_id: int):
-    """
-    Get all items under a category.
-
-    Returns:
-        List of items
-    """
-    return db.query(Item).filter(Item.category_id == category_id).all()
-
-
-def get_low_stock(db: Session):
-    """
-    Get items where quantity is below or equal to threshold.
-
-    Returns:
-        List of low-stock items
-    """
-    return db.query(Item).filter(Item.quantity <= Item.threshold).all()
-
-
-def get_expiring_items(db: Session):
-    """
-    Get items expiring within the next 7 days.
-
-    Returns:
-        List of items
-    """
-    today = date.today()
-    next_week = today + timedelta(days=7)
-
-    return db.query(Item).filter(
-        Item.expiry_date >= today,
-        Item.expiry_date <= next_week
-    ).all()
-
-
-def get_expired_items(db: Session):
-    """
-    Get already expired items.
-
-    Returns:
-        List of expired items
-    """
-    today = date.today()
-    return db.query(Item).filter(Item.expiry_date < today).all()
-
-
-def get_items_by_supplier(db: Session, supplier: str):
-    """
-    Get items filtered by supplier name (case-insensitive).
-
-    Returns:
-        List of items
-    """
-    return db.query(Item).filter(
-        func.lower(Item.supplier) == supplier.lower()
-    ).all()
