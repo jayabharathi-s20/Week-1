@@ -16,7 +16,6 @@ class Category(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, nullable=False, index=True)
     items = relationship("Item", back_populates="category", cascade="all", passive_deletes=True)
-    created_by = Column( Integer, ForeignKey("users.id"), nullable=False)
 
 class Item(Base):
     __tablename__ = "items"

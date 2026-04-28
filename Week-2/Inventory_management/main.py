@@ -227,16 +227,6 @@ def delete_category_api(category_id: int, db: Session = Depends(get_db)):
         raise HTTPException(500, str(e))
 
 
-@app.get("/users/{user_id}/category")
-def user_category_api(user_id: int, db: Session = Depends(get_db)):
-    """
-    Get categories created by a specific user.
-    """
-    try:
-        return crud.get_categories_by_user(db, user_id)
-    except Exception as e:
-        raise HTTPException(500, str(e))
-
 @app.post("/items")
 def create_item(item: ItemCreate, db: Session = Depends(get_db)):
     """
@@ -259,6 +249,40 @@ def get_items(db: Session = Depends(get_db)):
         return crud.get_items(db)
     except Exception as e:
         raise HTTPException(500, str(e))
+    
+@app.get("/items/low-stock")
+def low_stock(db: Session = Depends(get_db)):
+    """
+    Get items with low stock.
+    """
+    try:
+        return crud.get_low_stock(db)
+    except Exception as e:
+        raise HTTPException(500, str(e))
+
+
+@app.get("/items/expiring-soon")
+def expiring_items(db: Session = Depends(get_db)):
+    """
+    Get items expiring within 7 days.
+    """
+    try:
+        return crud.get_expiring_items(db)
+    except Exception as e:
+        raise HTTPException(500, str(e))
+
+
+@app.get("/items/by-supplier")
+def items_by_supplier(supplier: str, db: Session = Depends(get_db)):
+    """
+    Get items filtered by supplier.
+    """
+    try:
+        return crud.get_items_by_supplier(db, supplier)
+    except Exception as e:
+        raise HTTPException(500, str(e))
+
+
 
 
 @app.get("/items/{item_id}")
@@ -319,49 +343,6 @@ def delete_item(item_id: int, db: Session = Depends(get_db)):
         if not item:
             raise HTTPException(404, "Item not found")
         return item
-    except Exception as e:
-        raise HTTPException(500, str(e))
-
-@app.get("/items/low-stock")
-def low_stock(db: Session = Depends(get_db)):
-    """
-    Get items with low stock.
-    """
-    try:
-        return crud.get_low_stock(db)
-    except Exception as e:
-        raise HTTPException(500, str(e))
-
-
-@app.get("/items/expiring-soon")
-def expiring_items(db: Session = Depends(get_db)):
-    """
-    Get items expiring within 7 days.
-    """
-    try:
-        return crud.get_expiring_items(db)
-    except Exception as e:
-        raise HTTPException(500, str(e))
-
-
-@app.get("/items/expired")
-def expired_items(db: Session = Depends(get_db)):
-    """
-    Get expired items.
-    """
-    try:
-        return crud.get_expired_items(db)
-    except Exception as e:
-        raise HTTPException(500, str(e))
-
-
-@app.get("/items/by-supplier")
-def items_by_supplier(supplier: str, db: Session = Depends(get_db)):
-    """
-    Get items filtered by supplier.
-    """
-    try:
-        return crud.get_items_by_supplier(db, supplier)
     except Exception as e:
         raise HTTPException(500, str(e))
 

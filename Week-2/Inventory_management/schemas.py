@@ -22,7 +22,7 @@ class UserBase(BaseModel):
         Rules:
             - Cannot be empty
             - Minimum 2 characters
-            - Maximum 50 characters
+            - Maximum 100 characters
         """
         value = value.strip()
 
@@ -32,8 +32,8 @@ class UserBase(BaseModel):
         if len(value) < 2:
             raise ValueError("Name must be at least 2 characters")
 
-        if len(value) > 50:
-            raise ValueError("Name must not exceed 50 characters")
+        if len(value) > 100:
+            raise ValueError("Name must not exceed 100 characters")
 
         return value
 
@@ -75,8 +75,8 @@ class UserPatch(BaseModel):
             if len(value) < 2:
                 raise ValueError("Name must be at least 2 characters")
 
-            if len(value) > 50:
-                raise ValueError("Name must not exceed 50 characters")
+            if len(value) > 100:
+                raise ValueError("Name must not exceed 100 characters")
 
         return value
 
@@ -88,10 +88,9 @@ class CategoryBase(BaseModel):
 
     Attributes:
         name (str): Category name
-        created_by (int): User ID who created the category
     """
     name: str
-    created_by: int
+    
 
     @validator("name")
     def validate_name(cls, value):
@@ -106,8 +105,8 @@ class CategoryBase(BaseModel):
         if len(value) < 2:
             raise ValueError("Category name must be at least 2 characters")
 
-        if len(value) > 50:
-            raise ValueError("Category name must not exceed 50 characters")
+        if len(value) > 100:
+            raise ValueError("Category name must not exceed 100 characters")
 
         return value
 
@@ -131,7 +130,6 @@ class CategoryPatch(BaseModel):
     Schema for partially updating a category.
     """
     name: Optional[str] = None
-    created_by: Optional[int] = None
 
     @validator("name")
     def validate_name(cls, value):
@@ -147,8 +145,8 @@ class CategoryPatch(BaseModel):
             if len(value) < 2:
                 raise ValueError("Category name must be at least 2 characters")
 
-            if len(value) > 50:
-                raise ValueError("Category name must not exceed 50 characters")
+            if len(value) > 100:
+                raise ValueError("Category name must not exceed 100 characters")
 
         return value
 

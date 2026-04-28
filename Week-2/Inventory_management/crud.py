@@ -173,22 +173,20 @@ def create_category(db: Session, data: dict):
         Category: Created category
 
     Raises:
-        ValueError: If category already exists for user
+        ValueError: If category already exists
     """
     existing = db.query(Category).filter(
-        Category.name == data["name"],
-        Category.created_by == data["created_by"]
+        Category.name == data["name"]
     ).first()
 
     if existing:
-        raise ValueError("Category already exists for this user")
+        raise ValueError("Category already exists")
 
     category = Category(**data)
     db.add(category)
     db.commit()
     db.refresh(category)
     return category
-
 
 def get_categories(db: Session):
     """
@@ -214,15 +212,6 @@ def get_category(db: Session, category_id: int):
 
 
 def update_category(db: Session, category_id: int, data: dict):
-    """
-    Fully update a category.
-
-    Returns:
-        Category | None
-
-    Raises:
-        ValueError: If duplicate category exists
-    """
     category = get_category(db, category_id)
     if not category:
         return None
@@ -230,12 +219,11 @@ def update_category(db: Session, category_id: int, data: dict):
     if "name" in data:
         existing = db.query(Category).filter(
             Category.name == data["name"],
-            Category.created_by == data["created_by"],
             Category.id != category_id
         ).first()
 
         if existing:
-            raise ValueError("Category already exists for this user")
+            raise ValueError("Category already exists")
 
     for key, value in data.items():
         setattr(category, key, value)
@@ -246,12 +234,6 @@ def update_category(db: Session, category_id: int, data: dict):
 
 
 def patch_category(db: Session, category_id: int, data: dict):
-    """
-    Partially update a category.
-
-    Returns:
-        Category | None
-    """
     category = get_category(db, category_id)
     if not category:
         return None
@@ -259,12 +241,11 @@ def patch_category(db: Session, category_id: int, data: dict):
     if "name" in data:
         existing = db.query(Category).filter(
             Category.name == data["name"],
-            Category.created_by == category.created_by,
             Category.id != category_id
         ).first()
 
         if existing:
-            raise ValueError("Category already exists for this user")
+            raise ValueError("Category already exists")
 
     for key, value in data.items():
         if value is not None:
@@ -289,18 +270,6 @@ def delete_category(db: Session, category_id: int):
     db.delete(category)
     db.commit()
     return {"message": "Category deleted"}
-
-
-def get_categories_by_user(db: Session, user_id: int):
-    """
-    Get categories created by a user.
-
-    Returns:
-        List[Category]
-    """
-    return db.query(Category).filter(Category.created_by == user_id).all()
-
-
 
 def create_item(db: Session, data: dict):
     """
@@ -411,3 +380,41 @@ def delete_item(db: Session, item_id: int):
     db.delete(item)
     db.commit()
     return {"message": "Item deleted"}
+
+def get_low_stock(db: Session):
+    """
+    Get items where quantity <= threshold
+    """
+    return db.query(Item).filter(
+        Item.quantity <= Item.threshold
+    ).all()
+
+def get_expiring_items(db: Session):
+    """
+    Items expiring in next 7 days
+    """
+    today = date.today()
+    next_week = today + timedelta(days=7)
+
+    return db.query(Item).filter(
+        Item.expiry_date >= today,
+        Item.expiry_date <= next_week
+    ).all()
+
+def get_items_by_supplier(db: Session, supplier: str):
+    """
+    Filter items by supplier (case insensitive)
+    """
+    return db.query(Item).filter(
+        Item.supplier.ilike(f"%{supplier}%")
+    ).all()
+
+def get_user_items(db: Session, user_id: int):
+    return db.query(Item).filter(
+        Item.created_by == user_id
+    ).all()
+
+def get_items_by_category(db: Session, category_id: int):
+    return db.query(Item).filter(
+        Item.category_id == category_id
+    ).all()
