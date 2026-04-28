@@ -2,6 +2,20 @@ from pydantic import BaseModel, EmailStr, validator
 from typing import Optional
 from datetime import date
 
+def validate_name_common(value: str, field_name: str = "Field"):
+    value = value.strip()
+
+    if not value:
+        raise ValueError(f"{field_name} cannot be empty")
+
+    if len(value) < 2:
+        raise ValueError(f"{field_name} must be at least 2 characters")
+
+    if len(value) > 100:
+        raise ValueError(f"{field_name} must not exceed 100 characters")
+
+    return value
+
 
 class UserBase(BaseModel):
     """
@@ -16,26 +30,7 @@ class UserBase(BaseModel):
 
     @validator("name")
     def validate_name(cls, value):
-        """
-        Validate user name.
-
-        Rules:
-            - Cannot be empty
-            - Minimum 2 characters
-            - Maximum 100 characters
-        """
-        value = value.strip()
-
-        if not value:
-            raise ValueError("Name cannot be empty")
-
-        if len(value) < 2:
-            raise ValueError("Name must be at least 2 characters")
-
-        if len(value) > 100:
-            raise ValueError("Name must not exceed 100 characters")
-
-        return value
+        return validate_name_common(value, "Name")
 
 
 class UserCreate(UserBase):
@@ -63,22 +58,7 @@ class UserPatch(BaseModel):
 
     @validator("name")
     def validate_name(cls, value):
-        """
-        Validate name if provided.
-        """
-        if value is not None:
-            value = value.strip()
-
-            if not value:
-                raise ValueError("Name cannot be empty")
-
-            if len(value) < 2:
-                raise ValueError("Name must be at least 2 characters")
-
-            if len(value) > 100:
-                raise ValueError("Name must not exceed 100 characters")
-
-        return value
+        return validate_name_common(value, "Name")
 
 
 
@@ -94,21 +74,7 @@ class CategoryBase(BaseModel):
 
     @validator("name")
     def validate_name(cls, value):
-        """
-        Validate category name.
-        """
-        value = value.strip()
-
-        if not value:
-            raise ValueError("Category name cannot be empty")
-
-        if len(value) < 2:
-            raise ValueError("Category name must be at least 2 characters")
-
-        if len(value) > 100:
-            raise ValueError("Category name must not exceed 100 characters")
-
-        return value
+        return validate_name_common(value, "Name")
 
 
 class CategoryCreate(CategoryBase):
@@ -133,22 +99,7 @@ class CategoryPatch(BaseModel):
 
     @validator("name")
     def validate_name(cls, value):
-        """
-        Validate category name if provided.
-        """
-        if value is not None:
-            value = value.strip()
-
-            if not value:
-                raise ValueError("Category name cannot be empty")
-
-            if len(value) < 2:
-                raise ValueError("Category name must be at least 2 characters")
-
-            if len(value) > 100:
-                raise ValueError("Category name must not exceed 100 characters")
-
-        return value
+        return validate_name_common(value, "Name")
 
 
 
@@ -175,23 +126,9 @@ class ItemBase(BaseModel):
     category_id: int
     created_by: int
 
-    @validator("name", "supplier")
-    def validate_strings(cls, value):
-        """
-        Validate string fields (name, supplier).
-        """
-        value = value.strip()
-
-        if not value:
-            raise ValueError("Field cannot be empty")
-
-        if len(value) < 2:
-            raise ValueError("Must be at least 2 characters")
-
-        if len(value) > 100:
-            raise ValueError("Must not exceed 100 characters")
-
-        return value
+    @validator("name")
+    def validate_name(cls, value):
+        return validate_name_common(value, "Name")
 
     @validator("quantity", "threshold")
     def validate_numbers(cls, value):
@@ -253,24 +190,9 @@ class ItemPatch(BaseModel):
     category_id: Optional[int] = None
     created_by: Optional[int] = None
 
-    @validator("name", "supplier")
-    def validate_strings(cls, value):
-        """
-        Validate string fields if provided.
-        """
-        if value is not None:
-            value = value.strip()
-
-            if not value:
-                raise ValueError("Field cannot be empty")
-
-            if len(value) < 2:
-                raise ValueError("Must be at least 2 characters")
-
-            if len(value) > 100:
-                raise ValueError("Must not exceed 100 characters")
-
-        return value
+    @validator("name")
+    def validate_name(cls, value):
+        return validate_name_common(value, "Name")
 
     @validator("quantity", "threshold")
     def validate_numbers(cls, value):
