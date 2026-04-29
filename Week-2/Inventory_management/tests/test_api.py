@@ -157,9 +157,6 @@ def test_delete_category(db, category):
     assert res["message"] == "Category deleted"
 
 
-# =========================
-# ITEM TESTS
-# =========================
 
 def test_create_item(db, user, category, item_data):
     """Test item creation."""
