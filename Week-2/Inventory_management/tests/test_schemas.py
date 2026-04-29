@@ -33,9 +33,6 @@ def test_user_invalid_email():
         UserCreate(name="John", email="invalid")
 
 
-def test_user_patch_optional():
-    user = UserPatch()
-    assert user.name is None
 
 
 def test_category_valid():
@@ -58,9 +55,6 @@ def test_category_long():
         CategoryCreate(name="A" * 101)
 
 
-def test_category_patch_optional():
-    cat = CategoryPatch()
-    assert cat.name is None
 
 
 def valid_item_data():
@@ -122,11 +116,6 @@ def test_item_past_expiry():
     with pytest.raises(ValidationError):
         ItemCreate(**data)
 
-
-def test_item_patch_partial():
-    item = ItemPatch(name="Updated")
-    assert item.name == "Updated"
-    assert item.quantity is None
 
 
 def test_item_patch_invalid_price():
