@@ -366,9 +366,6 @@ def test_delete_item_not_found(db):
     assert crud.delete_item(db, 999) is None
 
 
-# =========================
-# FILTER TESTS
-# =========================
 
 def test_low_stock(db, user, category, item_base_data):
     """Test low stock filter."""

@@ -70,7 +70,6 @@ def client(db):
     """
     Provides a FastAPI test client using a test database.
 
-    - Overrides get_db dependency to use test DB
     - Yields a TestClient for API testing
     - Clears overrides after test
     """

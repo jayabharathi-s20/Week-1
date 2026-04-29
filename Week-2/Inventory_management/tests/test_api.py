@@ -3,8 +3,6 @@ from datetime import date, timedelta
 from Inventory_management import crud
 
 
-
-
 @pytest.fixture
 def user_data():
     """Valid user payload."""
