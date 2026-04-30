@@ -51,7 +51,7 @@ Run a specific test function:
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------
 Fixtures
-    A fixture is a function that provides setup data or resources to your tests before they run.
     Fixture = reusable setup for tests
+    A fixture is a function that provides setup data or resources to your tests before they run.
 
 
