@@ -17,18 +17,41 @@ Testing pyramid concepts :
         E2E testing evaluates the software workflow by simulating user interactions with APIs, 
           databases, and the interface, including form completion, button clicks, and navigation.
 
+    Unit → Test one small function
+Integration → Test multiple parts working together
+E2E → Test full app like a real user
+
 ----------------------------------------------------------------------------------------------------------------------------------------------------
 
 Test-Driven Development (TDD) :
     Test-driven development is an iterative approach to development that involves writing automated tests prior to writing the code.
 
 TDD Testing Tools :
-    1. Pytest
-        Pytest is a highly flexible Python framework that makes writing small, readable tests easy and can scale to support complex functional testing for apps and libraries. 
-        It promotes TDD principles through the auto-discovery of test modules and functions.
+    1.Pytest
+        - Pytest is a highly flexible Python framework that makes writing small, readable tests easy and can scale to support complex 
+            functional testing for apps and libraries. 
+        - It promotes TDD principles through the auto-discovery of test modules and functions.
+
+----------------------------------------------------------------------------------------------------------------------------------------------------
+pytest = a tool that runs tests and tells you if your code works or fails
 
 Pytest Installation :
     pip install pytest
     pytest --version
     pip install httpx
+
+Basic command:
+    pytest
+Run with detailed output:
+    pytest -v
+Run a specific file:
+    pytest test_api.py
+Run a specific test function:
+    pytest test_api.py::test_create_user_api
+
+----------------------------------------------------------------------------------------------------------------------------------------------------
+Fixtures
+    A fixture is a function that provides setup data or resources to your tests before they run.
+    Fixture = reusable setup for tests
+
 

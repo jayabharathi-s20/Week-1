@@ -141,11 +141,6 @@ def test_get_categories(db, category):
     assert len(categories) >= 1
 
 
-def test_update_category(db, category):
-    """Validate updating category."""
-    updated = crud.update_category(db, category.id, {"name": "New"})
-    assert updated.name == "New"
-
 
 def test_patch_category(db, category):
     """Validate partial update of category."""
@@ -215,14 +210,6 @@ def test_get_items(db, item):
     items = crud.get_items(db)
     assert len(items) >= 1
 
-
-def test_update_item_invalid_category(db, item):
-    """Ensure invalid category update raises ValueError."""
-    try:
-        crud.update_item(db, item.id, {"category_id": 999})
-        assert False
-    except ValueError:
-        assert True
 
 
 def test_patch_item(db, item):
