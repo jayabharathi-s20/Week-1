@@ -20,6 +20,7 @@ TEST_DB_NAME = "inventory_test"
 DATABASE_URL = f"postgresql://{DB_USER}:{DB_PW}@{DB_HOST}:{DB_PORT}/{TEST_DB_NAME}"
 
 engine = create_engine(DATABASE_URL)
+
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 

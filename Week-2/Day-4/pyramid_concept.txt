@@ -1,3 +1,7 @@
+The testing pyramid is a model that tells you:
+
+how many tests of each type you should write
+
 Testing pyramid concepts : 
     1. Unit Tests
         Unit testing is the base of the software test pyramid. 
@@ -12,6 +16,8 @@ Testing pyramid concepts :
     3. End-to-end (E2E) Tests
         E2E testing evaluates the software workflow by simulating user interactions with APIs, 
           databases, and the interface, including form completion, button clicks, and navigation.
+
+----------------------------------------------------------------------------------------------------------------------------------------------------
 
 Test-Driven Development (TDD) :
     Test-driven development is an iterative approach to development that involves writing automated tests prior to writing the code.

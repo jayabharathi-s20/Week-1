@@ -11,33 +11,19 @@ from Inventory_management.schemas import (
 
 @pytest.fixture
 def user_data():
-    """
-    Returns:
-        dict: Valid user data with name and email.
-    """
-    return {
-        "name": "John",
-        "email": "john@gmail.com"
-    }
+    """Provide valid user data."""
+    return {"name": "John", "email": "john@gmail.com"}
 
 
 @pytest.fixture
 def category_data():
-    """
-    Returns:
-        dict: Valid category data.
-    """
-    return {
-        "name": "Medicine"
-    }
+    """Provide valid category data."""
+    return {"name": "Medicine"}
 
 
 @pytest.fixture
 def item_data():
-    """
-    Returns:
-        dict: Valid item data including quantity, price, expiry, etc.
-    """
+    """Provide valid item data."""
     return {
         "name": "Paracetamol",
         "quantity": 10,
@@ -50,21 +36,15 @@ def item_data():
     }
 
 
-
 def test_user_valid(user_data):
     """
     Test creating a valid user.
 
     Args:
         user_data (dict): Valid user input.
-
-    Returns:
-        None
-
-    Raises:
-        AssertionError: If user creation fails.
     """
-    user = UserCreate(**user_data)
+    data = user_data
+    user = UserCreate(**data)
     assert user.name == "John"
 
 
@@ -80,51 +60,68 @@ def test_user_empty_name(user_data):
     """
     data = user_data.copy()
     data["name"] = " "
-
-    with pytest.raises(ValidationError):
+    try:
         UserCreate(**data)
+        assert False
+    except ValidationError as e:
+        assert "name" in str(e)
 
 
 def test_user_short_name(user_data):
     """
-    Test user creation with too short name.
+    Test user creation with short name.
+
+    Args:
+        user_data (dict): Base user data.
 
     Raises:
-        ValidationError: If name length is below minimum.
+        ValidationError: If name is too short.
     """
     data = user_data.copy()
     data["name"] = "J"
-
-    with pytest.raises(ValidationError):
+    try:
         UserCreate(**data)
+        assert False
+    except ValidationError as e:
+        assert "name" in str(e)
 
 
 def test_user_long_name(user_data):
     """
-    Test user creation with too long name.
+    Test user creation with long name.
+
+    Args:
+        user_data (dict): Base user data.
 
     Raises:
-        ValidationError: If name exceeds max length.
+        ValidationError: If name is too long.
     """
     data = user_data.copy()
     data["name"] = "J" * 101
-
-    with pytest.raises(ValidationError):
+    try:
         UserCreate(**data)
+        assert False
+    except ValidationError as e:
+        assert "name" in str(e)
 
 
 def test_user_invalid_email(user_data):
     """
-    Test user creation with invalid email format.
+    Test user creation with invalid email.
+
+    Args:
+        user_data (dict): Base user data.
 
     Raises:
-        ValidationError: If email format is invalid.
+        ValidationError: If email is invalid.
     """
     data = user_data.copy()
     data["email"] = "invalid"
-
-    with pytest.raises(ValidationError):
+    try:
         UserCreate(**data)
+        assert False
+    except ValidationError as e:
+        assert "email" in str(e)
 
 
 def test_category_valid(category_data):
@@ -134,7 +131,8 @@ def test_category_valid(category_data):
     Args:
         category_data (dict): Valid category input.
     """
-    category = CategoryCreate(**category_data)
+    data = category_data
+    category = CategoryCreate(**data)
     assert category.name == "Medicine"
 
 
@@ -142,43 +140,57 @@ def test_category_empty(category_data):
     """
     Test category with empty name.
 
+    Args:
+        category_data (dict): Base category data.
+
     Raises:
         ValidationError: If name is empty.
     """
     data = category_data.copy()
     data["name"] = " "
-
-    with pytest.raises(ValidationError):
+    try:
         CategoryCreate(**data)
+        assert False
+    except ValidationError as e:
+        assert "name" in str(e)
 
 
 def test_category_short(category_data):
     """
     Test category with short name.
 
+    Args:
+        category_data (dict): Base category data.
+
     Raises:
         ValidationError: If name is too short.
     """
     data = category_data.copy()
     data["name"] = "A"
-
-    with pytest.raises(ValidationError):
+    try:
         CategoryCreate(**data)
+        assert False
+    except ValidationError as e:
+        assert "name" in str(e)
 
 
 def test_category_long(category_data):
     """
     Test category with long name.
 
+    Args:
+        category_data (dict): Base category data.
+
     Raises:
-        ValidationError: If name exceeds max length.
+        ValidationError: If name is too long.
     """
     data = category_data.copy()
     data["name"] = "A" * 101
-
-    with pytest.raises(ValidationError):
+    try:
         CategoryCreate(**data)
-
+        assert False
+    except ValidationError as e:
+        assert "name" in str(e)
 
 
 def test_item_valid(item_data):
@@ -188,7 +200,8 @@ def test_item_valid(item_data):
     Args:
         item_data (dict): Valid item input.
     """
-    item = ItemCreate(**item_data)
+    data = item_data
+    item = ItemCreate(**data)
     assert item.name == "Paracetamol"
 
 
@@ -196,92 +209,126 @@ def test_item_empty_name(item_data):
     """
     Test item with empty name.
 
+    Args:
+        item_data (dict): Base item data.
+
     Raises:
         ValidationError: If name is empty.
     """
     data = item_data.copy()
     data["name"] = " "
-
-    with pytest.raises(ValidationError):
+    try:
         ItemCreate(**data)
+        assert False
+    except ValidationError as e:
+        assert "name" in str(e)
 
 
 def test_item_negative_quantity(item_data):
     """
     Test item with negative quantity.
 
+    Args:
+        item_data (dict): Base item data.
+
     Raises:
         ValidationError: If quantity is negative.
     """
     data = item_data.copy()
     data["quantity"] = -1
-
-    with pytest.raises(ValidationError):
+    try:
         ItemCreate(**data)
+        assert False
+    except ValidationError as e:
+        assert "quantity" in str(e)
 
 
 def test_item_negative_threshold(item_data):
     """
     Test item with negative threshold.
 
+    Args:
+        item_data (dict): Base item data.
+
     Raises:
         ValidationError: If threshold is negative.
     """
     data = item_data.copy()
     data["threshold"] = -5
-
-    with pytest.raises(ValidationError):
+    try:
         ItemCreate(**data)
+        assert False
+    except ValidationError as e:
+        assert "threshold" in str(e)
 
 
 def test_item_invalid_price_zero(item_data):
     """
     Test item with zero price.
 
+    Args:
+        item_data (dict): Base item data.
+
     Raises:
         ValidationError: If price is zero.
     """
     data = item_data.copy()
     data["price"] = 0
-
-    with pytest.raises(ValidationError):
+    try:
         ItemCreate(**data)
+        assert False
+    except ValidationError as e:
+        assert "price" in str(e)
 
 
 def test_item_invalid_price_negative(item_data):
     """
     Test item with negative price.
 
+    Args:
+        item_data (dict): Base item data.
+
     Raises:
         ValidationError: If price is negative.
     """
     data = item_data.copy()
     data["price"] = -10
-
-    with pytest.raises(ValidationError):
+    try:
         ItemCreate(**data)
+        assert False
+    except ValidationError as e:
+        assert "price" in str(e)
 
 
 def test_item_past_expiry(item_data):
     """
     Test item with past expiry date.
 
+    Args:
+        item_data (dict): Base item data.
+
     Raises:
         ValidationError: If expiry date is in the past.
     """
     data = item_data.copy()
     data["expiry_date"] = date.today() - timedelta(days=1)
-
-    with pytest.raises(ValidationError):
+    try:
         ItemCreate(**data)
+        assert False
+    except ValidationError as e:
+        assert "expiry_date" in str(e)
 
 
 def test_item_patch_invalid_price():
     """
-    Test patching item with invalid price.
+    Test patch with invalid price.
 
     Raises:
         ValidationError: If price is negative.
     """
-    with pytest.raises(ValidationError):
-        ItemPatch(price=-10)
+    data = {"price": -10}
+    try:
+        ItemPatch(**data)
+        assert False
+    except ValidationError as e:
+        assert "price" in str(e)
