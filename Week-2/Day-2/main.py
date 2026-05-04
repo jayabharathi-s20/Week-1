@@ -39,6 +39,7 @@ def read_users(db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+
 @app.get("/users/{user_id}")
 def read_user(user_id: int, db: Session = Depends(get_db)):
     """
