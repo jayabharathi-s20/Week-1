@@ -5,8 +5,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from fastapi.testclient import TestClient
 
-from Inventory_management.database import Base
-from Inventory_management import models   
+from app.main import app, get_db
+from app.database import Base
 
 load_dotenv()
 

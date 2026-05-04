@@ -1,6 +1,6 @@
 import pytest
 from datetime import date, timedelta
-from .. import crud
+from app import crud
 
 
 @pytest.fixture

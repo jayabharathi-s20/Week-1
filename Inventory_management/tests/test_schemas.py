@@ -2,7 +2,7 @@ import pytest
 from datetime import date, timedelta
 from pydantic import ValidationError
 
-from Inventory_management.schemas import (
+from app.schemas import (
     UserCreate,
     CategoryCreate, 
     ItemCreate, ItemPatch

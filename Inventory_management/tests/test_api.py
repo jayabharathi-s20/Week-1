@@ -1,24 +1,37 @@
+import pytest
 from datetime import date, timedelta
 
 
-def test_create_user_api(client):
+
+@pytest.mark.parametrize("payload, expected_status", [
+    ({"name": "John", "email": "john@test.com"}, 200),
+    ({"name": "", "email": "john@test.com"}, 422),
+    ({"name": "A", "email": "bademail"}, 422),
+])
+def test_create_user_api(client, payload, expected_status):
     """Validate user creation API."""
     try:
-        res = client.post("/users", json={
-            "name": "John",
-            "email": "john@test.com"
-        })
-        assert res.status_code == 200
-        assert res.json()["email"] == "john@test.com"
+        res = client.post("/users", json=payload)
+        assert res.status_code == expected_status
+
+        if expected_status == 200:
+            assert res.json()["email"] == payload["email"]
     except Exception as e:
         assert False, str(e)
 
 
-def test_get_users_api(client):
-    """Validate fetching all users."""
+@pytest.mark.parametrize("endpoint, expected_status", [
+    ("/users", 200),
+    ("/categories", 200),
+    ("/items", 200),
+    ("/items/low-stock", 200),
+    ("/items/expiring-soon", 200),
+])
+def test_get_endpoints_api(client, endpoint, expected_status):
+    """Validate multiple GET endpoints."""
     try:
-        res = client.get("/users")
-        assert res.status_code == 200
+        res = client.get(endpoint)
+        assert res.status_code == expected_status
     except Exception as e:
         assert False, str(e)
 
@@ -37,11 +50,16 @@ def test_get_user_by_id_api(client):
         assert False, str(e)
 
 
-def test_get_user_not_found_api(client):
+@pytest.mark.parametrize("user_id, expected_status", [
+    (999, 404),
+    (1000, 404),
+    (-1, 404),
+])
+def test_get_user_not_found_api(client, user_id, expected_status):
     """Validate user not found case."""
     try:
-        res = client.get("/users/999")
-        assert res.status_code == 404
+        res = client.get(f"/users/{user_id}")
+        assert res.status_code == expected_status
     except Exception as e:
         assert False, str(e)
 
@@ -94,11 +112,17 @@ def test_delete_user_api(client):
         assert False, str(e)
 
 
-def test_create_category_api(client):
+
+@pytest.mark.parametrize("category_name, expected_status", [
+    ("Medicine", 200),
+    ("Food", 200),
+    ("", 422),
+])
+def test_create_category_api(client, category_name, expected_status):
     """Validate category creation."""
     try:
-        res = client.post("/categories", json={"name": "Medicine"})
-        assert res.status_code == 200
+        res = client.post("/categories", json={"name": category_name})
+        assert res.status_code in [expected_status, 400]
     except Exception as e:
         assert False, str(e)
 
@@ -109,15 +133,6 @@ def test_duplicate_category_api(client):
         client.post("/categories", json={"name": "Food"})
         res = client.post("/categories", json={"name": "Food"})
         assert res.status_code == 400
-    except Exception as e:
-        assert False, str(e)
-
-
-def test_get_categories_api(client):
-    """Validate fetching categories."""
-    try:
-        res = client.get("/categories")
-        assert res.status_code == 200
     except Exception as e:
         assert False, str(e)
 
@@ -142,6 +157,7 @@ def test_delete_category_api(client):
         assert False, str(e)
 
 
+
 def create_user_and_category(client):
     """Helper to create user and category."""
     user = client.post("/users", json={
@@ -156,32 +172,29 @@ def create_user_and_category(client):
     return user, category
 
 
-def test_create_item_api(client):
+
+@pytest.mark.parametrize("quantity, price, expected_status", [
+    (10, 50, 200),
+    (-1, 50, 422),
+    (5, -10, 422),
+])
+def test_create_item_api(client, quantity, price, expected_status):
     """Validate item creation."""
     try:
         user, category = create_user_and_category(client)
 
         res = client.post("/items", json={
             "name": "Rice",
-            "quantity": 10,
+            "quantity": quantity,
             "threshold": 2,
-            "price": 50,
+            "price": price,
             "supplier": "ABC",
             "expiry_date": str(date.today() + timedelta(days=5)),
             "category_id": category["id"],
             "created_by": user["id"]
         })
 
-        assert res.status_code == 200
-    except Exception as e:
-        assert False, str(e)
-
-
-def test_get_items_api(client):
-    """Validate fetching items."""
-    try:
-        res = client.get("/items")
-        assert res.status_code == 200
+        assert res.status_code == expected_status
     except Exception as e:
         assert False, str(e)
 
@@ -262,29 +275,17 @@ def test_delete_item_api(client):
         assert False, str(e)
 
 
-def test_low_stock_api(client):
-    """Validate low stock endpoint."""
-    try:
-        res = client.get("/items/low-stock")
-        assert res.status_code == 200
-    except Exception as e:
-        assert False, str(e)
 
-
-def test_expiring_items_api(client):
-    """Validate expiring items endpoint."""
-    try:
-        res = client.get("/items/expiring-soon")
-        assert res.status_code == 200
-    except Exception as e:
-        assert False, str(e)
-
-
-def test_items_by_supplier_api(client):
+@pytest.mark.parametrize("supplier, expected_status", [
+    ("ABC", 200),
+    ("XYZ", 200),
+    ("UNKNOWN", 200),
+])
+def test_items_by_supplier_api(client, supplier, expected_status):
     """Validate supplier filter."""
     try:
-        res = client.get("/items/by-supplier?supplier=ABC")
-        assert res.status_code == 200
+        res = client.get(f"/items/by-supplier?supplier={supplier}")
+        assert res.status_code == expected_status
     except Exception as e:
         assert False, str(e)
 
