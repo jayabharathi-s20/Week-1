@@ -49,4 +49,8 @@ from jose import JWTError, jwt
     JWTError → used to:
         catch errors when token is invalid / expired / tampered
 
-from datetime import datetime, timedelta
+def create_access_token(data: dict) -> str:
+    This function is used to generate a token when a user logs in. It takes user data (like user id), creates an expiry time, adds that expiry to the data, and then generates a JWT token using that data.
+
+def decode_token(token: str):
+    This function decodes and verifies the token sent by the user and returns the payload data to the backend for further processing.

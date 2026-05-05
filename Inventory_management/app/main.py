@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
 from app.database import SessionLocal
 from app import crud
-from app.schemas import *
+from app.models import *
 from app.dependencies import get_current_user
 
 app = FastAPI()

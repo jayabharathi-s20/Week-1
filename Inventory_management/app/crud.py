@@ -3,9 +3,11 @@ from sqlalchemy import func
 from datetime import date, timedelta
 from app.models import User, Category, Item
 from sqlalchemy.exc import IntegrityError
-from app.utils.security import hash_password
-from app.utils.security import verify_password
 from app.utils.auth import create_access_token
+from passlib.context import CryptContext
+
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def create_user(db: Session, user):
@@ -14,22 +16,12 @@ def create_user(db: Session, user):
 
     - Checks if email already exists
     - Hashes the password before storing
-
-    Args:
-        db (Session): Database session
-        user: User input data
-
-    Returns:
-        User: Created user object
-
-    Raises:
-        ValueError: If email already exists
     """
     existing = db.query(User).filter(User.email == user.email).first()
     if existing:
         raise ValueError("Email already exists")
 
-    hashed_pw = hash_password(user.password)
+    hashed_pw = pwd_context.hash(user.password)
 
     db_user = User(
         name=user.name.strip(),
@@ -40,6 +32,7 @@ def create_user(db: Session, user):
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
+
     return db_user
 
 
@@ -47,20 +40,22 @@ def authenticate_user(db, email: str, password: str):
     """
     Authenticate a user using email and password.
 
-    Args:
-        db (Session): Database session
-        email (str): User email
-        password (str): Plain password
-
     Returns:
-        User | None: User if valid, else None
+        User | None
     """
+
+    if not password or password.strip() == "":
+        return None
+
+    if len(password) > 128:
+        return None
+
     user = db.query(User).filter(User.email == email).first()
 
     if not user:
         return None
 
-    if not verify_password(password, user.password):
+    if not pwd_context.verify(password, user.password):
         return None
 
     return user
