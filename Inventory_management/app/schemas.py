@@ -37,7 +37,33 @@ class UserCreate(UserBase):
     """
     Schema for creating a user.
     """
-    pass
+    password: str
+
+    @field_validator("password")
+    def validate_password(cls, value):
+        if len(value) < 6:
+            raise ValueError("Password must be at least 6 characters")
+        if len(value) > 128:
+            raise ValueError("Password too long")
+        return value
+
+class LoginSchema(BaseModel):
+    email: EmailStr
+    password: str
+
+    @field_validator("password")
+    def validate_password(cls, value):
+        if not value or value.strip() == "":
+            raise ValueError("Password cannot be empty")
+        return value
+    
+class UserResponse(BaseModel):
+    id: int
+    name: str
+    email: EmailStr
+
+    class Config:
+        from_attributes = True
 
 
 class UserUpdate(UserBase):
