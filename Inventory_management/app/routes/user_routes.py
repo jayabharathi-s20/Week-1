@@ -33,14 +33,20 @@ def get_users(db: Session = Depends(get_db),current_user=Depends(admin_only)):
         )
 
 
-@router.get("/users/{user_id}",status_code=status.HTTP_200_OK)
-def get_user(user_id: int,db: Session = Depends(get_db),current_user=Depends(admin_only)):
+@router.get("/users/{user_id}", status_code=status.HTTP_200_OK)
+def get_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(admin_only)
+):
     """
     Retrieve a user by ID.
     """
+
     try:
         user = user_controllers.get_user(db, user_id)
-        if not user:
+
+        if not user["success"]:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail={
@@ -49,12 +55,13 @@ def get_user(user_id: int,db: Session = Depends(get_db),current_user=Depends(adm
                     "message": USER_NOT_FOUND
                 }
             )
+
         return {
             "success": True,
             "message": USER_FETCHED_SUCCESS,
             "data": user
         }
-    
+
     except HTTPException:
         raise
 
@@ -76,7 +83,7 @@ def update_user(user_id: int,user: UserUpdate,db: Session = Depends(get_db),curr
     """
     try:
         updated_user= user_controllers.update_user(db, user_id, user.model_dump())
-        if not updated_user:
+        if not updated_user["success"]:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail={
@@ -89,7 +96,7 @@ def update_user(user_id: int,user: UserUpdate,db: Session = Depends(get_db),curr
         return {
             "success": True,
             "message": USER_UPDATED_SUCCESS,
-            "data": updated_user
+            "data": updated_user["data"]
         }
     except ValueError as e:
         raise HTTPException(
@@ -116,14 +123,24 @@ def update_user(user_id: int,user: UserUpdate,db: Session = Depends(get_db),curr
 
 
 @router.patch("/users/{user_id}",status_code=status.HTTP_200_OK)
-def patch_user(user_id: int,user: UserPatch,db: Session = Depends(get_db),current_user=Depends(admin_only)):
+def patch_user(
+    user_id: int,
+    user: UserPatch,
+    db: Session = Depends(get_db),
+    current_user=Depends(admin_only)
+):
     """
     Partially update a user.
     """
+
     try:
-        patched_user= user_controllers.patch_user(db, user_id, user.model_dump(exclude_unset=True))
-    
-        if not patched_user:
+        patched_user = user_controllers.patch_user(
+            db,
+            user_id,
+            user.model_dump(exclude_unset=True)
+        )
+
+        if not patched_user["success"]:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail={
@@ -136,7 +153,7 @@ def patch_user(user_id: int,user: UserPatch,db: Session = Depends(get_db),curren
         return {
             "success": True,
             "message": USER_UPDATED_SUCCESS,
-            "data": patched_user
+            "data": patched_user["data"]
         }
 
     except ValueError as e:
@@ -163,8 +180,12 @@ def patch_user(user_id: int,user: UserPatch,db: Session = Depends(get_db),curren
         )
 
 
-@router.delete("/users/{user_id}",status_code=status.HTTP_200_OK)
-def delete_user(user_id: int,db: Session = Depends(get_db),current_user=Depends(admin_only)):
+@router.delete("/users/{user_id}", status_code=status.HTTP_200_OK)
+def delete_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(admin_only)
+):
     """
     Delete a user.
     """
@@ -172,10 +193,19 @@ def delete_user(user_id: int,db: Session = Depends(get_db),current_user=Depends(
     try:
         result = user_controllers.delete_user(db, user_id)
 
+        if not result["success"]:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={
+                    "success": False,
+                    "error_code": "USER_NOT_FOUND",
+                    "message": USER_NOT_FOUND
+                }
+            )
+
         return {
             "success": True,
             "message": USER_DELETED
-            
         }
 
     except HTTPException:

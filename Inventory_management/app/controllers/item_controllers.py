@@ -338,6 +338,12 @@ def get_low_stock(db: Session):
             Item.quantity <= Item.threshold
         ).all()
 
+        if not items:
+            return {
+                "success": False,
+                "message": NO_LOW_STOCK_ITEMS
+            }
+
         return {
             "success": True,
             "message": LOW_STOCK_ITEMS_FETCHED_SUCCESS,
@@ -374,6 +380,12 @@ def get_expiring_items(db: Session):
             Item.expiry_date <= next_week
         ).all()
 
+        if not items:
+            return {
+                "success": False,
+                "message": NO_EXPIRING_ITEMS_FOUND
+            }
+
         return {
             "success": True,
             "message": EXPIRING_ITEMS_FETCHED_SUCCESS,
@@ -408,6 +420,12 @@ def get_items_by_supplier(db: Session, supplier: str):
         items = db.query(Item).filter(
             Item.supplier.ilike(f"%{supplier}%")
         ).all()
+
+        if not items:
+            return {
+                "success": False,
+                "message": SUPPLIER_NOT_FOUND
+            }
 
         return {
             "success": True,
@@ -444,6 +462,12 @@ def get_user_items(db: Session, user_id: int):
             Item.created_by == user_id
         ).all()
 
+        if not items:
+            return {
+                "success": False,
+                "message": USER_ITEMS_NOT_FOUND
+            }
+
         return {
             "success": True,
             "message": USER_ITEMS_FETCHED_SUCCESS,
@@ -473,8 +497,17 @@ def get_items_by_category(db: Session, category_id: int):
         dict:
             Returns category items or failure response.
     """
-
     try:
+        category = db.query(Category).filter(
+            Category.id == category_id
+        ).first()
+
+        if not category:
+            return {
+                "success": False,
+                "message": CATEGORY_NOT_FOUND
+            }
+
         items = db.query(Item).filter(
             Item.category_id == category_id
         ).all()

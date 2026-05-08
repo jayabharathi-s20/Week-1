@@ -14,7 +14,7 @@ router = APIRouter()
 def create_item(
     item: ItemCreate,
     db: Session = Depends(get_db),
-    current_user=Depends(all_roles)
+    current_user = Depends(all_roles)
 ):
     """
     Create a new item.
@@ -91,11 +91,24 @@ def low_stock(
     try:
         items = item_controllers.get_low_stock(db)
 
+        if not items["success"]:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={
+                    "success": False,
+                    "error_code": "NO_LOW_STOCK_ITEMS",
+                    "message": NO_LOW_STOCK_ITEMS
+                }
+            )
+
         return {
             "success": True,
             "message": LOW_STOCK_ITEMS_FETCHED_SUCCESS,
             "data": items
         }
+
+    except HTTPException:
+        raise
 
     except Exception:
         raise HTTPException(
@@ -118,13 +131,26 @@ def items_by_supplier(
     Retrieve items by supplier.
     """
     try:
-        items = item_controllers.get_items_by_supplier(db, supplier)
+        result = item_controllers.get_items_by_supplier(db, supplier)
+
+        if not result["success"]:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={
+                    "success": False,
+                    "error_code": "SUPPLIER_NOT_FOUND",
+                    "message": SUPPLIER_NOT_FOUND
+                }
+            )
 
         return {
             "success": True,
             "message": SUPPLIER_ITEMS_FETCHED_SUCCESS,
-            "data": items
+            "data": result["data"]
         }
+
+    except HTTPException:
+        raise
 
     except Exception:
         raise HTTPException(
@@ -149,11 +175,23 @@ def user_items(
     try:
         items = item_controllers.get_user_items(db, user_id)
 
+        if not items["success"]:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={
+                    "success": False,
+                    "error_code": "USER_ITEMS_NOT_FOUND",
+                    "message": USER_ITEMS_NOT_FOUND
+                }
+            )
+
         return {
             "success": True,
             "message": USER_ITEMS_FETCHED_SUCCESS,
             "data": items
         }
+    except HTTPException:
+        raise
 
     except Exception:
         raise HTTPException(
@@ -178,11 +216,25 @@ def items_by_category(
     try:
         items = item_controllers.get_items_by_category(db, category_id)
 
+        if not items["success"]:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={
+                    "success": False,
+                    "error_code": "CATEGORY NOT FOUND",
+                    "message": CATEGORY_NOT_FOUND
+                }
+            )
+
         return {
             "success": True,
             "message": CATEGORY_ITEMS_FETCHED_SUCCESS,
-            "data": items
+            "data": items["data"]
         }
+
+    except HTTPException:
+        raise
+
 
     except Exception:
         raise HTTPException(
@@ -206,11 +258,24 @@ def expiring_items(
     try:
         items = item_controllers.get_expiring_items(db)
 
+        if not items["success"]:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={
+                    "success": False,
+                    "error_code": "NO_EXPIRING_ITEMS_FOUND",
+                    "message": NO_EXPIRING_ITEMS_FOUND
+                }
+            )
+
         return {
             "success": True,
             "message": EXPIRING_ITEMS_FETCHED_SUCCESS,
             "data": items
         }
+    
+    except HTTPException:
+        raise
 
     except Exception:
         raise HTTPException(
@@ -235,7 +300,7 @@ def get_item(
     try:
         item = item_controllers.get_item(db, item_id)
 
-        if not item:
+        if not item["success"]:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail={
@@ -282,7 +347,7 @@ def update_item(
             item.model_dump()
         )
 
-        if not updated_item:
+        if not updated_item["success"]:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail={
@@ -339,7 +404,7 @@ def patch_item(
             item.model_dump(exclude_unset=True)
         )
 
-        if not patched_item:
+        if not patched_item["success"]:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail={
@@ -390,6 +455,16 @@ def delete_item(
     """
     try:
         deleted_item = item_controllers.delete_item(db, item_id)
+
+        if not deleted_item["success"]:
+            raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={
+                "success":False,
+                "error_code":"ITEM NOT FOUND",
+                "message":ITEM_NOT_FOUND
+            }
+            )
 
         return {
             "success": True,

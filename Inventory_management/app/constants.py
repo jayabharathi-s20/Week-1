@@ -9,7 +9,9 @@ INVALID_REFRESH_TOKEN = "Invalid refresh token"
 TOKEN_CREATE_ERROR = "Failed to create access token"
 REFRESH_TOKEN_CREATE_ERROR = "Failed to create refresh token"
 ACCESS_TOKEN_REFRESHED = "Access token refreshed"
-TOKEN_REFRESH_FAILED = "Token refresh failed"
+
+USERS_NOT_FOUND="users not found"
+
 USER_NOT_FOUND = "User not found"
 USER_CREATED_SUCCESS = "User registered successfully"
 USER_FETCHED_SUCCESS = "User retrieved successfully"
@@ -20,11 +22,8 @@ EMAIL_EXISTS = "Email already exists"
 FETCH_USERS_FAILED = "Failed to fetch users"
 FETCH_USER_FAILED = "Failed to fetch user"
 UPDATE_USER_FAILED = "Failed to update user"
-UPDATE_USER_INTERNAL_ERROR = "Internal server error while updating user"
 PATCH_USER_FAILED = "Failed to patch user"
-PATCH_USER_INTERNAL_ERROR = "Internal server error while patching user"
 DELETE_USER_FAILED = "Failed to delete user"
-REGISTRATION_FAILED = "User registration failed"
 
 PASSWORD_EMPTY = "Password cannot be empty"
 PASSWORD_MIN_LENGTH = "Password must be at least 6 characters"
@@ -43,11 +42,8 @@ CREATE_CATEGORY_FAILED = "Failed to create category"
 FETCH_CATEGORIES_FAILED = "Failed to fetch categories"
 FETCH_CATEGORY_FAILED = "Failed to fetch category"
 UPDATE_CATEGORY_FAILED = "Failed to update category"
-UPDATE_CATEGORY_INTERNAL_ERROR = "Internal server error while updating category"
 PATCH_CATEGORY_FAILED = "Failed to patch category"
-PATCH_CATEGORY_INTERNAL_ERROR = "Internal server error while patching category"
 DELETE_CATEGORY_FAILED = "Failed to delete category"
-DELETE_CATEGORY_INTERNAL_ERROR = "Internal server error while deleting category"
 
 
 
@@ -65,16 +61,13 @@ ITEM_CREATION_ERROR = "Error creating item"
 ITEM_UPDATION_ERROR = "Error updating item"
 
 CREATE_ITEM_FAILED = "Failed to create item"
-CREATE_ITEM_INTERNAL_ERROR = "Internal server error while creating item"
 
 FETCH_ITEMS_FAILED = "Failed to fetch items"
 FETCH_ITEM_FAILED = "Failed to fetch item"
 
 UPDATE_ITEM_FAILED = "Failed to update item"
-UPDATE_ITEM_INTERNAL_ERROR = "Internal server error while updating item"
 
 PATCH_ITEM_FAILED = "Failed to patch item"
-PATCH_ITEM_INTERNAL_ERROR = "Internal server error while patching item"
 
 DELETE_ITEM_FAILED = "Failed to delete item"
 
@@ -122,3 +115,13 @@ INTERNAL_SERVER_ERROR = "Internal server error"
 SOMETHING_WENT_WRONG = "Something went wrong"
 
 DATABASE_ERROR = "Database error occurred"
+
+USER_ITEMS_NOT_FOUND = "No items found for this user"
+
+SUPPLIER_NOT_FOUND = "No items found for this supplier"
+
+NO_EXPIRING_ITEMS_FOUND = "No expiring items found"
+NO_LOW_STOCK_ITEMS="No low stocks"
+
+
+

@@ -56,8 +56,19 @@ def login(data: LoginSchema, response: Response, db: Session = Depends(get_db)):
                                         "error_code": "INVALID_CREDENTIALS",
                                         "message": INVALID_CREDENTIALS})
 
-        response.set_cookie("access_token", result["access_token"], httponly=True, samesite="lax")
-        response.set_cookie("refresh_token", result["refresh_token"], httponly=True, samesite="lax")
+        response.set_cookie(
+            "access_token",
+            result["data"]["access_token"],
+            httponly=True,
+            samesite="lax"
+        )
+
+        response.set_cookie(
+            "refresh_token",
+            result["data"]["refresh_token"],
+            httponly=True,
+            samesite="lax"
+        )
 
         return {"success":True,"message": LOGIN_SUCCESS}
     
@@ -67,7 +78,7 @@ def login(data: LoginSchema, response: Response, db: Session = Depends(get_db)):
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail={"success": False,
-                                    "error_code": "VALIDATION_ERROR",""
+                                    "error_code": "VALIDATION_ERROR",
                                     "message": str(e)})
     
     except Exception:

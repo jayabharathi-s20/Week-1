@@ -27,7 +27,7 @@ def create_access_token(data: dict) -> str:
         data (dict): Token payload data
 
     Returns:
-        str: Encoded JWT access token
+        str: Encoded JWT accesREFRESH_TOKEN_EXPIRE_DAYSs token
 
     Raises:
         ValueError: If token creation fails

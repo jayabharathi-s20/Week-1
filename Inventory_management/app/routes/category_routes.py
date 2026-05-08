@@ -80,7 +80,7 @@ def get_category(category_id: int,db: Session = Depends(get_db),current_user=Dep
     try:
         category = category_controllers.get_category(db,category_id)
 
-        if not category:
+        if not category["success"]:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail={
@@ -118,7 +118,7 @@ def update_category(category_id: int,category: CategoryUpdate,db: Session = Depe
     try:
         updated_category= category_controllers.update_category(db, category_id, category.model_dump())
     
-        if not updated_category:
+        if not updated_category["success"]:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail={
@@ -170,7 +170,7 @@ def patch_category(category_id: int,category: CategoryPatch,db: Session = Depend
             category.model_dump(exclude_unset=True)
         )
 
-        if not patched_category:
+        if not patched_category["success"]:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail={
@@ -208,13 +208,28 @@ def patch_category(category_id: int,category: CategoryPatch,db: Session = Depend
             }
         )
 
-@router.delete("/categories/{category_id}",status_code=status.HTTP_200_OK)
-def delete_category(category_id: int,db: Session = Depends(get_db),current_user=Depends(admin_only)):
+@router.delete("/categories/{category_id}", status_code=status.HTTP_200_OK)
+def delete_category(
+    category_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(admin_only)
+):
     """
     Delete a category.
     """
+
     try:
-        category_controllers.delete_category(db, category_id)
+        result = category_controllers.delete_category(db, category_id)
+
+        if not result["success"]:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={
+                    "success": False,
+                    "error_code": "CATEGORY_NOT_FOUND",
+                    "message": CATEGORY_NOT_FOUND
+                }
+            )
 
         return {
             "success": True,

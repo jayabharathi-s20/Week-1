@@ -8,18 +8,16 @@ from ..constants import *
 def get_users(db: Session):
     """
     Retrieve all users.
-
-    Args:
-        db (Session):
-            Active SQLAlchemy database session.
-
-    Returns:
-        dict:
-            Returns list of users or failure response.
     """
 
     try:
         users = db.query(User).all()
+
+        if not users:
+            return {
+                "success": False,
+                "message": USERS_NOT_FOUND
+            }
 
         return {
             "success": True,
@@ -38,17 +36,6 @@ def get_users(db: Session):
 def get_user(db: Session, user_id: int):
     """
     Retrieve a user by ID.
-
-    Args:
-        db (Session):
-            Active SQLAlchemy database session.
-
-        user_id (int):
-            User ID.
-
-    Returns:
-        dict:
-            Returns user data or failure response.
     """
 
     try:
@@ -79,20 +66,6 @@ def get_user(db: Session, user_id: int):
 def update_user(db: Session, user_id: int, data: dict):
     """
     Fully update a user.
-
-    Args:
-        db (Session):
-            Active SQLAlchemy database session.
-
-        user_id (int):
-            User ID.
-
-        data (dict):
-            Updated user payload.
-
-    Returns:
-        dict:
-            Returns updated user or failure response.
     """
 
     try:
@@ -157,20 +130,6 @@ def update_user(db: Session, user_id: int, data: dict):
 def patch_user(db: Session, user_id: int, data: dict):
     """
     Partially update a user.
-
-    Args:
-        db (Session):
-            Active SQLAlchemy database session.
-
-        user_id (int):
-            User ID.
-
-        data (dict):
-            Partial user payload.
-
-    Returns:
-        dict:
-            Returns patched user or failure response.
     """
 
     try:
@@ -236,17 +195,6 @@ def patch_user(db: Session, user_id: int, data: dict):
 def delete_user(db: Session, user_id: int):
     """
     Delete a user by ID.
-
-    Args:
-        db (Session):
-            Active SQLAlchemy database session.
-
-        user_id (int):
-            User ID.
-
-    Returns:
-        dict:
-            Returns deletion status response.
     """
 
     try:
