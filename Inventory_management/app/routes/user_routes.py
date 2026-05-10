@@ -17,16 +17,27 @@ def get_users(db: Session = Depends(get_db),current_user=Depends(admin_only)):
     """
     try:
         users= user_controllers.get_users(db)
-        return {
-            "success": True,
-            "message": USERS_FETCHED_SUCCESS,
-            "data": users
-        }
+
+        if not users["success"]:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={
+                    "success": False,
+                    "error_code": "USERS_NOT_FOUND",
+                    "message": USERS_NOT_FOUND
+                }
+            )
+
+        return users
+    
+    except HTTPException:
+        raise
+    
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail={
-                "success": False,
+                "status": False,
                 "error_code": "FETCH_USERS_FAILED",
                 "message": INTERNAL_SERVER_ERROR
             }
@@ -56,11 +67,7 @@ def get_user(
                 }
             )
 
-        return {
-            "success": True,
-            "message": USER_FETCHED_SUCCESS,
-            "data": user
-        }
+        return user
 
     except HTTPException:
         raise
@@ -93,11 +100,7 @@ def update_user(user_id: int,user: UserUpdate,db: Session = Depends(get_db),curr
                 }
             )
 
-        return {
-            "success": True,
-            "message": USER_UPDATED_SUCCESS,
-            "data": updated_user["data"]
-        }
+        return updated_user
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -150,11 +153,7 @@ def patch_user(
                 }
             )
 
-        return {
-            "success": True,
-            "message": USER_UPDATED_SUCCESS,
-            "data": patched_user["data"]
-        }
+        return patched_user
 
     except ValueError as e:
         raise HTTPException(
@@ -186,27 +185,32 @@ def delete_user(
     db: Session = Depends(get_db),
     current_user=Depends(admin_only)
 ):
-    """
-    Delete a user.
-    """
 
     try:
         result = user_controllers.delete_user(db, user_id)
 
         if not result["success"]:
+
+            if result["message"] == USER_NOT_FOUND:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail={
+                        "success": False,
+                        "error_code": "USER_NOT_FOUND",
+                        "message": USER_NOT_FOUND
+                    }
+                )
+
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
+                status_code=status.HTTP_400_BAD_REQUEST,
                 detail={
                     "success": False,
-                    "error_code": "USER_NOT_FOUND",
-                    "message": USER_NOT_FOUND
+                    "error_code": "DELETE_USER_FAILED",
+                    "message": result["message"]
                 }
             )
 
-        return {
-            "success": True,
-            "message": USER_DELETED
-        }
+        return result
 
     except HTTPException:
         raise
@@ -216,7 +220,7 @@ def delete_user(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail={
                 "success": False,
-                "error_code": "DELETE_USER_FAILED",
+                "error_code": "DELETE_USER_INTERNAL_ERROR",
                 "message": INTERNAL_SERVER_ERROR
             }
         )

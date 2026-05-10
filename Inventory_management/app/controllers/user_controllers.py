@@ -199,6 +199,7 @@ def delete_user(db: Session, user_id: int):
 
     try:
         user_response = get_user(db, user_id)
+        print(user_response)
 
         if not user_response["success"]:
             return user_response

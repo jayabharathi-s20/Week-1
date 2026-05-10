@@ -25,11 +25,7 @@ def create_item(
 
         created_item = item_controllers.create_item(db, data)
 
-        return {
-            "success": True,
-            "message": ITEM_CREATED_SUCCESS,
-            "data": created_item
-        }
+        return created_item
 
     except ValueError as e:
         raise HTTPException(
@@ -63,11 +59,7 @@ def get_items(
     try:
         items = item_controllers.get_items(db)
 
-        return {
-            "success": True,
-            "message": ITEMS_FETCHED_SUCCESS,
-            "data": items
-        }
+        return items
 
     except Exception:
         raise HTTPException(
@@ -101,11 +93,7 @@ def low_stock(
                 }
             )
 
-        return {
-            "success": True,
-            "message": LOW_STOCK_ITEMS_FETCHED_SUCCESS,
-            "data": items
-        }
+        return items
 
     except HTTPException:
         raise
@@ -143,11 +131,7 @@ def items_by_supplier(
                 }
             )
 
-        return {
-            "success": True,
-            "message": SUPPLIER_ITEMS_FETCHED_SUCCESS,
-            "data": result["data"]
-        }
+        return result
 
     except HTTPException:
         raise
@@ -185,11 +169,8 @@ def user_items(
                 }
             )
 
-        return {
-            "success": True,
-            "message": USER_ITEMS_FETCHED_SUCCESS,
-            "data": items
-        }
+        return items
+    
     except HTTPException:
         raise
 
@@ -226,11 +207,7 @@ def items_by_category(
                 }
             )
 
-        return {
-            "success": True,
-            "message": CATEGORY_ITEMS_FETCHED_SUCCESS,
-            "data": items["data"]
-        }
+        return items
 
     except HTTPException:
         raise
@@ -268,11 +245,7 @@ def expiring_items(
                 }
             )
 
-        return {
-            "success": True,
-            "message": EXPIRING_ITEMS_FETCHED_SUCCESS,
-            "data": items
-        }
+        return items
     
     except HTTPException:
         raise
@@ -310,11 +283,7 @@ def get_item(
                 }
             )
 
-        return {
-            "success": True,
-            "message": ITEM_FETCHED_SUCCESS,
-            "data": item
-        }
+        return item
 
     except HTTPException:
         raise
@@ -357,11 +326,7 @@ def update_item(
                 }
             )
 
-        return {
-            "success": True,
-            "message": ITEM_UPDATED_SUCCESS,
-            "data": updated_item
-        }
+        return updated_item
 
     except ValueError as e:
         raise HTTPException(
@@ -414,11 +379,7 @@ def patch_item(
                 }
             )
 
-        return {
-            "success": True,
-            "message": ITEM_UPDATED_SUCCESS,
-            "data": patched_item
-        }
+        return patched_item
 
     except ValueError as e:
         raise HTTPException(
@@ -466,11 +427,7 @@ def delete_item(
             }
             )
 
-        return {
-            "success": True,
-            "message": ITEM_DELETED,
-            "data": deleted_item
-        }
+        return deleted_item
 
     except HTTPException:
         raise

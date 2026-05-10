@@ -16,11 +16,8 @@ def create_category(category: CategoryCreate,db: Session = Depends(get_db),curre
     """
     try:
         created_category =category_controllers.create_category(db, category.model_dump())
-        return {
-            "success": True,
-            "message": CATEGORY_CREATED_SUCCESS,
-            "data": created_category
-        }
+        return created_category
+    
     except HTTPException:
         raise
 
@@ -53,11 +50,7 @@ def get_categories(db: Session = Depends(get_db),current_user=Depends(all_roles)
     try:
         categories = category_controllers.get_categories(db)
 
-        return {
-            "success": True,
-            "message": CATEGORIES_FETCHED_SUCCESS,
-            "data": categories
-        }
+        return categories
     except HTTPException:
         raise
 
@@ -90,11 +83,7 @@ def get_category(category_id: int,db: Session = Depends(get_db),current_user=Dep
                 }
             )
 
-        return {
-            "success": True,
-            "message": CATEGORY_FETCHED_SUCCESS,
-            "data": category
-        }
+        return category
 
     except HTTPException:
         raise
@@ -128,11 +117,7 @@ def update_category(category_id: int,category: CategoryUpdate,db: Session = Depe
                 }
             )
 
-        return {
-            "success": True,
-            "message": CATEGORY_UPDATED_SUCCESS,
-            "data": updated_category
-        }
+        return updated_category
 
     except ValueError as e:
         raise HTTPException(
@@ -180,11 +165,8 @@ def patch_category(category_id: int,category: CategoryPatch,db: Session = Depend
                 }
             )
 
-        return {
-            "success": True,
-            "message": CATEGORY_UPDATED_SUCCESS,
-            "data": patched_category
-        }
+        return patched_category
+        
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -231,11 +213,7 @@ def delete_category(
                 }
             )
 
-        return {
-            "success": True,
-            "message": CATEGORY_DELETED,
-            "data": None
-        }
+        return result
 
     except HTTPException:
         raise

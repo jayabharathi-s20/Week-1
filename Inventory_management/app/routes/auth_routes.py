@@ -16,7 +16,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     """
     try:
         created_user= auth_controllers.create_user(db, user)
-        return {"success":True,"message":USER_CREATED_SUCCESS,"data":created_user}
+        return created_user
     
     except HTTPException:
         raise
@@ -70,7 +70,7 @@ def login(data: LoginSchema, response: Response, db: Session = Depends(get_db)):
             samesite="lax"
         )
 
-        return {"success":True,"message": LOGIN_SUCCESS}
+        return result
     
     except HTTPException:
         raise

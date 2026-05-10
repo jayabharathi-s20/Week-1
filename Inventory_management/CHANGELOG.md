@@ -22,3 +22,7 @@
 
 ## Added
 - Added `CHANGELOG.md` file for tracking project updates.
+
+### Modified
+- Modified error handling.
+
