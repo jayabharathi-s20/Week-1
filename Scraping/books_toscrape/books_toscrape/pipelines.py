@@ -118,10 +118,8 @@ class PaginationPipeline(BasePipeline):
                 description=item.get("description"),
                 image_url=item.get("image_url"),
                 stock=item.get("stock"),
-                product_information=json.dumps(
-                    item.get("product_information"),
-                    ensure_ascii=False
-                ),               
+                product_information=item.get("product_information"),
+            
                 pagination_url=item.get("pagination_url")
             )
 
@@ -137,13 +135,3 @@ class PaginationPipeline(BasePipeline):
 
         return item
     
-class CsvPipeline:
-
-    def process_item(self, item, spider):
-
-        item["product_information"] = json.dumps(
-            item.get("product_information"),
-            ensure_ascii=False
-        )
-
-        return item

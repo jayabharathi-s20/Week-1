@@ -6,24 +6,59 @@ import json
 class PaginationSpider(scrapy.Spider):
     name = "pagination"
     allowed_domains = ["books.toscrape.com"]
-    start_urls = ["https://books.toscrape.com/catalogue/category/books/sequential-art_5/index.html",
-                  "https://books.toscrape.com/catalogue/category/books/travel_2/index.html"
-                  ]
+    start_urls=["https://books.toscrape.com/"]
 
     def parse(self, response):
+
+        category_urls = response.css(".side_categories ul li ul li a::attr(href)").getall()
+
+        for category_url in category_urls:
+
+            full_category_url = response.urljoin(category_url)
+
+            yield scrapy.Request(
+                url=full_category_url,
+                callback=self.parse_category
+            )
+
+
+            
+    def parse_category(self, response):
+
         books = response.css("article.product_pod")
 
-        for book in books:
-           
-            relative_url= book.css("h3 a::attr(href)").get()
-            # book_url='https://books.toscrape.com/catalogue/'+relative_url
-            book_url=response.urljoin(relative_url)
-            yield scrapy.Request(book_url,callback=self.parse_pagination,meta={"book_url":book_url,"pagination_url":response.url})
+        next_page = response.css("li.next a::attr(href)").get()
 
-            next_page=response.css("li.next a::attr(href)").get()
-        if next_page:    
+        current_url = response.url
+        if next_page or "page-" in current_url:
+            pagination_url = current_url
+        else:
+            pagination_url = None
+
+    
+        for book in books:
+
+            relative_url = book.css("h3 a::attr(href)").get()
+            book_url = response.urljoin(relative_url)
+
+            yield scrapy.Request(
+                book_url,
+                callback=self.parse_pagination,
+                meta={
+                    "book_url": book_url,
+                    "pagination_url": pagination_url
+                }
+            )
+
+        if next_page:
             next_page_url=response.urljoin(next_page)
-            yield scrapy.Request(next_page_url,callback=self.parse)
+            yield scrapy.Request(
+                next_page_url,
+                callback=self.parse_category
+            )
+
+
+            
 
     def parse_pagination(self, response):
 
@@ -55,7 +90,7 @@ class PaginationSpider(scrapy.Spider):
         item["image_url"] = response.urljoin(response.css(".item img::attr(src)").get())
         stock = response.css(".instock.availability").xpath("normalize-space()").get()
         item["stock"]=re.search(r"\((.*?)\)",stock).group(1)
-        item["product_information"] = product_information
+        item["product_information"] = json.dumps(product_information,ensure_ascii=False)
         item["host_url"] = response.meta.get("book_url")
         item["pagination_url"] = response.meta.get("pagination_url")
 
