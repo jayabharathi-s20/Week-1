@@ -55,7 +55,7 @@ class PaginationSpider(scrapy.Spider):
         item["image_url"] = response.urljoin(response.css(".item img::attr(src)").get())
         stock = response.css(".instock.availability").xpath("normalize-space()").get()
         item["stock"]=re.search(r"\((.*?)\)",stock).group(1)
-        item["product_information"] = json.dumps(product_information, ensure_ascii=False)
+        item["product_information"] = product_information
         item["host_url"] = response.meta.get("book_url")
         item["pagination_url"] = response.meta.get("pagination_url")
 

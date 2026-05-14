@@ -61,6 +61,8 @@ DOWNLOAD_DELAY = 1
 ITEM_PIPELINES = {
    "books_toscrape.pipelines.BooksToscrapePipeline": 300,
    "books_toscrape.pipelines.PaginationPipeline":200,
+   "books_toscrape.pipelines.CsvPipeline": 500,
+
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
